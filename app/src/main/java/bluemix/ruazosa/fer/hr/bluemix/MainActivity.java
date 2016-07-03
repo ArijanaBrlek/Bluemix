@@ -19,6 +19,9 @@ import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
+import com.ibm.watson.developer_cloud.visual_recognition.v3.VisualRecognition;
+import com.ibm.watson.developer_cloud.visual_recognition.v3.model.ClassifyImagesOptions;
+import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassification;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity
                             InputStream in = WaveUtils.reWriteWaveHeader(response);
 
                             File outputDir =  getCacheDir();
-                            File outputFile = File.createTempFile("hello_word", ".vav", outputDir);
+                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
                             OutputStream out = new FileOutputStream(outputFile);
 
                             byte[] buffer = new byte[1024];
