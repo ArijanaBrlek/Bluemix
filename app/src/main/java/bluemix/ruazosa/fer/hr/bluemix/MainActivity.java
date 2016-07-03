@@ -13,6 +13,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.ibm.watson.developer_cloud.http.ServiceCallback;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
@@ -45,8 +49,16 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        ListView listViewGender = (ListView) navigationView.findViewById(R.id.list_gender);
+        listViewGender.setAdapter(new ListViewAdapter(
+                new Category("Male", "Female")));
+
+        ListView listViewLanguage = (ListView) navigationView.findViewById(R.id.list_language);
+        listViewLanguage.setAdapter(new ListViewAdapter(
+                new Category("English", "Spanish", "English", "Spanish", "English", "Spanish")));
     }
 
     private View.OnClickListener textToSpeech() {
@@ -67,7 +79,7 @@ public class MainActivity extends AppCompatActivity
                             InputStream in = WaveUtils.reWriteWaveHeader(response);
 
                             File outputDir =  getCacheDir();
-                            File outputFile = File.createTempFile("hello_word", ".vav", outputDir);
+                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
                             OutputStream out = new FileOutputStream(outputFile);
 
                             byte[] buffer = new byte[1024];
@@ -100,6 +112,41 @@ public class MainActivity extends AppCompatActivity
         };
 
     }
+
+    private class ListViewAdapter extends BaseAdapter {
+
+        private Category category;
+
+        public ListViewAdapter(Category category) {
+            this.category = category;
+        }
+
+        @Override
+        public int getCount() {
+            return category.getItems().length;
+        }
+
+        @Override
+        public String getItem(int position) {
+            return category.getItems()[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return category.getItems()[position].hashCode();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup container) {
+            if (convertView == null) {
+                convertView = getLayoutInflater().inflate(R.layout.list_item, container, false);
+            }
+            ((TextView) convertView.findViewById(android.R.id.text1))
+                    .setText(getItem(position));
+            return convertView;
+        }
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -139,19 +186,23 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.list_gender) {
+            Log.d("MENU: ", "dskljfsdkjfsdk");
         }
+
+//        if (id == R.id.nav_camera) {
+//            // Handle the camera action
+//        } else if (id == R.id.nav_gallery) {
+//
+//        } else if (id == R.id.nav_slideshow) {
+//
+//        } else if (id == R.id.nav_manage) {
+//
+//        } else if (id == R.id.nav_share) {
+//
+//        } else if (id == R.id.nav_send) {
+//
+//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
