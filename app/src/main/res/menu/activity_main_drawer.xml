@@ -1,24 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
-    </group>
+    <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Gender">
+        <menu>
+            <group android:id="@+id/group_gender">
+                <item
+                    android:id="@+id/nav_gender_male"
+                    android:icon="@drawable/ic_menu_circle"
+                    android:title="Male"/>
+                <item
+                    android:id="@+id/nav_gender_female"
+                    android:icon="@drawable/ic_menu_circle"
+                    android:title="Female"/>
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="Language">
+        <menu>
+            <group android:id="@+id/group_language">
+                <item
+                    android:id="@+id/nav_lang_en"
+                    android:icon="@drawable/ic_menu_circle"
+                    android:title="English"/>
+                <item
+                    android:id="@+id/nav_lang_es"
+                    android:icon="@drawable/ic_menu_circle"
+                    android:title="Espana"/>
+            </group>
+        </menu>
+    </item>
 
     <item android:title="Communicate">
         <menu>
@@ -26,10 +38,6 @@
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
                 android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
         </menu>
     </item>
 

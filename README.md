@@ -15,10 +15,12 @@ pokretanje opcije puštanja zvučnog zapisa sa izgovorom predmeta na engleskom
 tekst no prije toga omogućava korisniku odabir jezika (Bluemix podržava više jezika) te
 odabir glasa koji izgovara tekst (muški ženski)
 
-Visual recognition service:
-url do servisa: https://gateway-a.watsonplatform.net/visual-recognition/api
+Visual recognition service:  
+url do servisa:
+https://gateway-a.watsonplatform.net/visual-recognition/api  
 api dokumentacija: https://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/visual-recognition/api/v3/#introduction
 
-Text to speech service:
-url: https://stream.watsonplatform.net/text-to-speech/api
+Text to speech service:  
+url:
+https://stream.watsonplatform.net/text-to-speech/api  
 api dokumentacija: https://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/text-to-speech/api/v1/#introduction

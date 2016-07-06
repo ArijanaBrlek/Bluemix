@@ -5,4 +5,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="classification_in_progress">classifying object...</string>
+    <string name="classification_error">classification error</string>
+    <string name="classification_unknown">classification unknown</string>
 </resources>

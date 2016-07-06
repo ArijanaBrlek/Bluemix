@@ -10,6 +10,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -30,15 +31,35 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.Button;
 import android.widget.Toast;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.ibm.watson.developer_cloud.http.ServiceCallback;
+import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
+import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
+import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
+import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
+import com.ibm.watson.developer_cloud.visual_recognition.v3.VisualRecognition;
+import com.ibm.watson.developer_cloud.visual_recognition.v3.model.ClassifyImagesOptions;
+import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassification;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -68,11 +89,6 @@ public class MainActivity extends AppCompatActivity
     private boolean mFlashSupported;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,13 +98,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(textToSpeech());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -96,8 +106,16 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        ListView listViewGender = (ListView) navigationView.findViewById(R.id.list_gender);
+        listViewGender.setAdapter(new ListViewAdapter(
+                new Category("Male", "Female")));
+
+        ListView listViewLanguage = (ListView) navigationView.findViewById(R.id.list_language);
+        listViewLanguage.setAdapter(new ListViewAdapter(
+                new Category("English", "Spanish", "English", "Spanish", "English", "Spanish")));
 
         textureView = (TextureView) findViewById(R.id.texture);
         assert textureView != null;
@@ -349,6 +367,93 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
     }
 
+    private View.OnClickListener textToSpeech() {
+
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextToSpeech service = new TextToSpeech();
+                service.setUsernameAndPassword("2e17aa3c-40ec-4b32-b276-6bce254e4911", "uWyTHqcWVC1P");
+
+                String text = "Harry Potter";
+                service.synthesize(text, Voice.GB_KATE, AudioFormat.WAV).enqueue(new ServiceCallback<InputStream>() {
+
+                    @Override
+                    public void onResponse(InputStream response) {
+                        try {
+
+                            InputStream in = WaveUtils.reWriteWaveHeader(response);
+
+                            File outputDir =  getCacheDir();
+                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
+                            OutputStream out = new FileOutputStream(outputFile);
+
+                            byte[] buffer = new byte[1024];
+                            int length;
+                            while ((length = in.read(buffer)) > 0) {
+                                out.write(buffer, 0, length);
+                            }
+                            out.close();
+                            in.close();
+                            response.close();
+
+                            FileInputStream fis = new FileInputStream(outputFile);
+                            MediaPlayer mediaPlayer = new MediaPlayer();
+                            mediaPlayer.setDataSource(fis.getFD());
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
+
+                        } catch (Exception e) {
+                            Log.d("ERROR: ", e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+
+                    }
+                });
+
+            }
+        };
+
+    }
+
+    private class ListViewAdapter extends BaseAdapter {
+
+        private Category category;
+
+        public ListViewAdapter(Category category) {
+            this.category = category;
+        }
+
+        @Override
+        public int getCount() {
+            return category.getItems().length;
+        }
+
+        @Override
+        public String getItem(int position) {
+            return category.getItems()[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return category.getItems()[position].hashCode();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup container) {
+            if (convertView == null) {
+                convertView = getLayoutInflater().inflate(R.layout.list_item, container, false);
+            }
+            ((TextView) convertView.findViewById(android.R.id.text1))
+                    .setText(getItem(position));
+            return convertView;
+        }
+    }
+
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -387,19 +492,23 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.list_gender) {
+            Log.d("MENU: ", "dskljfsdkjfsdk");
         }
+
+//        if (id == R.id.nav_camera) {
+//            // Handle the camera action
+//        } else if (id == R.id.nav_gallery) {
+//
+//        } else if (id == R.id.nav_slideshow) {
+//
+//        } else if (id == R.id.nav_manage) {
+//
+//        } else if (id == R.id.nav_share) {
+//
+//        } else if (id == R.id.nav_send) {
+//
+//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
