@@ -26,6 +26,7 @@ public class ClassifyActivity extends AppCompatActivity {
 
     private ImageView imgCamera;
     private TextView txtClass;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,11 @@ public class ClassifyActivity extends AppCompatActivity {
 
         imgCamera = (ImageView) findViewById(R.id.img_camera);
         txtClass = (TextView) findViewById(R.id.txt_class);
+
+        Bundle extras = getIntent().getExtras();
+        if(extras != null) {
+            fileName = extras.getString("file");
+        }
 
         try {
             File image = loadImage();
@@ -47,7 +53,8 @@ public class ClassifyActivity extends AppCompatActivity {
     }
 
     private File loadImage() {
-        return new File("/storage/emulated/0/Download", "gx6romp.jpg");
+//        return new File("/storage/emulated/0/Download", "gx6romp.jpg");
+        return new File(fileName);
     }
 
     private void displayImage(File image) throws FileNotFoundException {

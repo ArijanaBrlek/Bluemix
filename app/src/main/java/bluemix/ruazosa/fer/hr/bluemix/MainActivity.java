@@ -2,6 +2,7 @@ package bluemix.ruazosa.fer.hr.bluemix;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -162,8 +163,10 @@ public class MainActivity extends AppCompatActivity
         }
         @Override
         public void onError(CameraDevice camera, int error) {
-            cameraDevice.close();
-            cameraDevice = null;
+            if(cameraDevice != null) {
+                cameraDevice.close();
+                cameraDevice = null;
+            }
         }
     };
 
@@ -249,6 +252,11 @@ public class MainActivity extends AppCompatActivity
                 public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
                     super.onCaptureCompleted(session, request, result);
                     Toast.makeText(MainActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
+
+                    Intent i = new Intent(MainActivity.this, ClassifyActivity.class);
+                    i.putExtra("file", file);
+                    startActivity(i);
+
                     createCameraPreview();
                 }
             };
