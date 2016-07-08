@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity
 
         ListView listViewLanguage = (ListView) navigationView.findViewById(R.id.list_language);
         listViewLanguage.setAdapter(new ListViewAdapter(
-                new Category("English", "Spanish", "English", "Spanish", "English", "Spanish")));
+                new Category("English", "Spanish", "Japanese")));
     }
 
     private View.OnClickListener textToSpeech() {
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity
                 TextToSpeech service = new TextToSpeech();
                 service.setUsernameAndPassword("2e17aa3c-40ec-4b32-b276-6bce254e4911", "uWyTHqcWVC1P");
 
-                String text = "Harry Potter";
+                String text = "harry potter and philosopher's stone";
                 service.synthesize(text, Voice.GB_KATE, AudioFormat.WAV).enqueue(new ServiceCallback<InputStream>() {
 
                     @Override
@@ -80,7 +81,6 @@ public class MainActivity extends AppCompatActivity
                         try {
 
                             InputStream in = WaveUtils.reWriteWaveHeader(response);
-
                             File outputDir =  getCacheDir();
                             File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
                             OutputStream out = new FileOutputStream(outputFile);
@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity
 
                             FileInputStream fis = new FileInputStream(outputFile);
                             MediaPlayer mediaPlayer = new MediaPlayer();
+                            mediaPlayer.reset();
                             mediaPlayer.setDataSource(fis.getFD());
                             mediaPlayer.prepare();
                             mediaPlayer.start();
