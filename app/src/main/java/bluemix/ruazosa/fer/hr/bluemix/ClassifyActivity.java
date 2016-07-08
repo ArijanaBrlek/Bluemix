@@ -128,7 +128,7 @@ public class ClassifyActivity extends AppCompatActivity {
                 TextToSpeech service = new TextToSpeech();
                 service.setUsernameAndPassword("2e17aa3c-40ec-4b32-b276-6bce254e4911", "uWyTHqcWVC1P");
 
-                String text = "Harry Potter";
+                String text = txtClass.getText().toString();
                 service.synthesize(text, Voice.GB_KATE, AudioFormat.WAV).enqueue(new ServiceCallback<InputStream>() {
 
                     @Override
