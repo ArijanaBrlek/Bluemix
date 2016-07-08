@@ -2,21 +2,26 @@ package bluemix.ruazosa.fer.hr.bluemix;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.ibm.watson.developer_cloud.http.ServiceCallback;
+import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
+import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
+import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
+import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.VisualRecognition;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.ClassifyImagesOptions;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.ImageClassification;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassification;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassifier;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.List;
 
 public class ClassifyActivity extends AppCompatActivity {
@@ -50,6 +55,8 @@ public class ClassifyActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(textToSpeech());
     }
 
     private File loadImage() {
@@ -111,5 +118,57 @@ public class ClassifyActivity extends AppCompatActivity {
 
     private void classificationUnknown() {
         txtClass.setText(R.string.classification_unknown);
+    }
+
+    private View.OnClickListener textToSpeech() {
+
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextToSpeech service = new TextToSpeech();
+                service.setUsernameAndPassword("2e17aa3c-40ec-4b32-b276-6bce254e4911", "uWyTHqcWVC1P");
+
+                String text = "Harry Potter";
+                service.synthesize(text, Voice.GB_KATE, AudioFormat.WAV).enqueue(new ServiceCallback<InputStream>() {
+
+                    @Override
+                    public void onResponse(InputStream response) {
+                        try {
+
+                            InputStream in = WaveUtils.reWriteWaveHeader(response);
+
+                            File outputDir =  getCacheDir();
+                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
+                            OutputStream out = new FileOutputStream(outputFile);
+
+                            byte[] buffer = new byte[1024];
+                            int length;
+                            while ((length = in.read(buffer)) > 0) {
+                                out.write(buffer, 0, length);
+                            }
+                            out.close();
+                            in.close();
+                            response.close();
+
+                            FileInputStream fis = new FileInputStream(outputFile);
+                            MediaPlayer mediaPlayer = new MediaPlayer();
+                            mediaPlayer.setDataSource(fis.getFD());
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
+
+                        } catch (Exception e) {
+                            Log.d("ERROR: ", e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+
+                    }
+                });
+
+            }
+        };
+
     }
 }

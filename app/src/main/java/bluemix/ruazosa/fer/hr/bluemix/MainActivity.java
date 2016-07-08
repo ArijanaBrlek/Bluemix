@@ -98,9 +98,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(textToSpeech());
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -373,58 +370,6 @@ public class MainActivity extends AppCompatActivity
         //closeCamera();
         stopBackgroundThread();
         super.onPause();
-    }
-
-    private View.OnClickListener textToSpeech() {
-
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TextToSpeech service = new TextToSpeech();
-                service.setUsernameAndPassword("2e17aa3c-40ec-4b32-b276-6bce254e4911", "uWyTHqcWVC1P");
-
-                String text = "Harry Potter";
-                service.synthesize(text, Voice.GB_KATE, AudioFormat.WAV).enqueue(new ServiceCallback<InputStream>() {
-
-                    @Override
-                    public void onResponse(InputStream response) {
-                        try {
-
-                            InputStream in = WaveUtils.reWriteWaveHeader(response);
-
-                            File outputDir =  getCacheDir();
-                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
-                            OutputStream out = new FileOutputStream(outputFile);
-
-                            byte[] buffer = new byte[1024];
-                            int length;
-                            while ((length = in.read(buffer)) > 0) {
-                                out.write(buffer, 0, length);
-                            }
-                            out.close();
-                            in.close();
-                            response.close();
-
-                            FileInputStream fis = new FileInputStream(outputFile);
-                            MediaPlayer mediaPlayer = new MediaPlayer();
-                            mediaPlayer.setDataSource(fis.getFD());
-                            mediaPlayer.prepare();
-                            mediaPlayer.start();
-
-                        } catch (Exception e) {
-                            Log.d("ERROR: ", e.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-
-                    }
-                });
-
-            }
-        };
-
     }
 
     private class ListViewAdapter extends BaseAdapter {
