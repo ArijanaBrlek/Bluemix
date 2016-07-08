@@ -6,11 +6,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.*;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
-import android.net.Uri;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,49 +24,45 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
-import android.util.Size;
-import android.util.SparseIntArray;
-import android.view.*;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.widget.Button;
-import android.widget.Toast;
-
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import android.util.Log;
+import android.util.Size;
+import android.util.SparseIntArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ibm.watson.developer_cloud.http.ServiceCallback;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
-import com.ibm.watson.developer_cloud.visual_recognition.v3.VisualRecognition;
-import com.ibm.watson.developer_cloud.visual_recognition.v3.model.ClassifyImagesOptions;
-import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassification;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -254,7 +256,7 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(MainActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
 
                     Intent i = new Intent(MainActivity.this, ClassifyActivity.class);
-                    i.putExtra("file", file);
+                    i.putExtra("file", file.getPath());
                     startActivity(i);
 
                     createCameraPreview();
