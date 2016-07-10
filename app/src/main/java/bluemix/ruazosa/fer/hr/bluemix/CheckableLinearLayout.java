@@ -30,7 +30,6 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
 
     @Override
     public void setChecked(boolean b) {
-        Log.d("d", "dfsdfdsfds");
         if (b != mChecked) {
             mChecked = b;
             refreshDrawableState();
