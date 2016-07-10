@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity
         addAdapter(linearLayoutLang, new ListViewAdapter(new Category("English", "Spanish", "Japanese")));
 
         findViewById(R.id.picture).setOnClickListener(this);
-        findViewById(R.id.info).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) findViewById(R.id.texture);
         mFile = new File(getExternalFilesDir(null), "pic.jpg");
     }
@@ -888,15 +887,6 @@ public class MainActivity extends AppCompatActivity
         switch (view.getId()) {
             case R.id.picture: {
                 takePicture();
-                break;
-            }
-            case R.id.info: {
-                if (null != this) {
-                    new AlertDialog.Builder(this)
-                            .setMessage("Intro message")
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show();
-                }
                 break;
             }
         }
