@@ -87,33 +87,41 @@ public class ClassifyActivity extends AppCompatActivity {
         service.classify(classifyImagesOptions).enqueue(new ServiceCallback<VisualClassification>() {
             @Override
             public void onResponse(final VisualClassification response) {
-                List<ImageClassification> images = response.getImages();
-                if(images.size() > 0) {
-                    List<VisualClassifier> classifiers = images.get(0).getClassifiers();
+                try {
+                    List<ImageClassification> images = response.getImages();
+                    if(images.size() > 0) {
+                        List<VisualClassifier> classifiers = images.get(0).getClassifiers();
 
-                    if(classifiers.size() > 0) {
-                        final List<VisualClassifier.VisualClass> classes = classifiers.get(0).getClasses();
+                        if(classifiers.size() > 0) {
+                            final List<VisualClassifier.VisualClass> classes = classifiers.get(0).getClasses();
 
-                        if(classes.size() > 0) {
-                            Log.d("SLIKA:", response.getImages().get(0).getClassifiers().get(0).toString());
-                            Log.d("SLIKA:", response.getImages().get(0).getClassifiers().get(0).getClasses().get(0).getName());
+                            if(classes.size() > 0) {
+                                Log.d("SLIKA:", response.getImages().get(0).getClassifiers().get(0).toString());
+                                Log.d("SLIKA:", response.getImages().get(0).getClassifiers().get(0).getClasses().get(0).getName());
 
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    txtClass.setText(classes.get(0).getName());
-                                }
-                            });
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        txtClass.setText(classes.get(0).getName());
+                                    }
+                                });
+                            } else {
+                                classificationUnknown();
+                            }
                         } else {
                             classificationUnknown();
                         }
                     } else {
                         classificationUnknown();
                     }
-                } else {
-                    classificationUnknown();
+                } catch(final Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(ClassifyActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
-
             }
 
             @Override
