@@ -8,4 +8,9 @@
     <string name="classification_in_progress">classifying object...</string>
     <string name="classification_error">classification error</string>
     <string name="classification_unknown">classification unknown</string>
+    <string name="gender_default">male</string>
+    <string name="gender_preferred">male</string>
+    <string name="lang_default">english</string>
+    <string name="lang_preferred">english</string>
+
 </resources>

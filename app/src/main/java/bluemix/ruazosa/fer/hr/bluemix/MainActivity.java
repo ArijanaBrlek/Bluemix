@@ -3,6 +3,7 @@ package bluemix.ruazosa.fer.hr.bluemix;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
@@ -46,6 +47,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +66,9 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    static ListViewAdapter adapterGender;
+    static ListViewAdapter adapterLang;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,10 +86,21 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         final LinearLayout linearLayoutGender = (LinearLayout) navigationView.findViewById(R.id.list_gender);
-        addAdapter(linearLayoutGender, new ListViewAdapter(new Category("Male", "Female")));
+        adapterGender =  new ListViewAdapter(new Category("Male", "Female"));
+        addAdapter(linearLayoutGender, adapterGender, getString(R.string.gender_preferred));
 
         final LinearLayout linearLayoutLang = (LinearLayout) navigationView.findViewById(R.id.list_language);
-        addAdapter(linearLayoutLang, new ListViewAdapter(new Category("English", "Spanish", "Japanese")));
+        adapterLang = new ListViewAdapter(new Category("English", "Spanish", "Japanese"));
+        addAdapter(linearLayoutLang, adapterLang, getString(R.string.lang_preferred));
+
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        String defaultGender = getResources().getString(R.string.gender_default);
+        String preferredGender = sharedPref.getString(getString(R.string.gender_preferred), defaultGender);
+        setAdapterSelection(adapterGender, preferredGender, linearLayoutGender);
+
+        String defaultLang = getResources().getString(R.string.lang_default);
+        String preferredLang = sharedPref.getString(getString(R.string.lang_preferred), defaultLang);
+        setAdapterSelection(adapterLang, preferredLang, linearLayoutLang);
 
         findViewById(R.id.picture).setOnClickListener(this);
         findViewById(R.id.info).setOnClickListener(this);
@@ -92,7 +108,15 @@ public class MainActivity extends AppCompatActivity
         mFile = new File(getExternalFilesDir(null), "pic.jpg");
     }
 
-    private void addAdapter(LinearLayout layout, ListViewAdapter adapter) {
+    private void setAdapterSelection(ListViewAdapter adapter, String preferred, LinearLayout linearLayout) {
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toLowerCase().equals(preferred)) {
+                ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(true);
+            }
+        }
+    }
+
+    private void addAdapter(final LinearLayout layout, final ListViewAdapter adapter, final String preferredKey) {
         final LinearLayout linearLayout = layout;
         for (int i = 0; i < adapter.getCount(); i++) {
             final View item = adapter.getView(i, null, null);
@@ -104,9 +128,52 @@ public class MainActivity extends AppCompatActivity
                         ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(false);
                     }
                     ((CheckableLinearLayout) item).setChecked(true);
+                    writeToSharedPerformances(((TextView)((CheckableLinearLayout) item).findViewById(android.R.id.text1)).getText().toString().toLowerCase(), preferredKey);
                 }
             });
         }
+    }
+
+    private void writeToSharedPerformances(String s, String key) {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(key, s);
+        editor.commit();
+    }
+
+
+    private class ListViewAdapter extends BaseAdapter {
+
+        private Category category;
+
+        public ListViewAdapter(Category category) {
+            this.category = category;
+        }
+
+        @Override
+        public int getCount() {
+            return category.getItems().length;
+        }
+
+        @Override
+        public String getItem(int position) {
+            return category.getItems()[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return category.getItems()[position].hashCode();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup container) {
+            if (convertView == null) {
+                convertView = getLayoutInflater().inflate(R.layout.list_item, container, false);
+            }
+            ((TextView) convertView.findViewById(android.R.id.text1)).setText(getItem(position));
+            return convertView;
+        }
+
     }
 
     /**
@@ -966,42 +1033,6 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
-
-
-    private class ListViewAdapter extends BaseAdapter {
-
-        private Category category;
-
-        public ListViewAdapter(Category category) {
-            this.category = category;
-        }
-
-        @Override
-        public int getCount() {
-            return category.getItems().length;
-        }
-
-        @Override
-        public String getItem(int position) {
-            return category.getItems()[position];
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return category.getItems()[position].hashCode();
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup container) {
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item, container, false);
-            }
-            ((TextView) convertView.findViewById(android.R.id.text1)).setText(getItem(position));
-            return convertView;
-        }
-
-    }
-
 
     @Override
     public void onBackPressed() {
