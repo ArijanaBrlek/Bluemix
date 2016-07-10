@@ -1,29 +1,33 @@
 package bluemix.ruazosa.fer.hr.bluemix;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.*;
-import android.hardware.camera2.*;
+import android.graphics.ImageFormat;
+import android.graphics.Matrix;
+import android.graphics.Point;
+import android.graphics.RectF;
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,37 +38,26 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ibm.watson.developer_cloud.http.ServiceCallback;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -87,24 +80,33 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        LinearLayout linearLayoutGender = (LinearLayout) navigationView.findViewById(R.id.list_gender);
-        ListViewAdapter adapterGender =  new ListViewAdapter(new Category("Male", "Female"));
-        for (int i = 0; i < adapterGender.getCount(); i++) {
-            View item = adapterGender.getView(i, null, null);
-            linearLayoutGender.addView(item);
-        }
+        final LinearLayout linearLayoutGender = (LinearLayout) navigationView.findViewById(R.id.list_gender);
+        addAdapter(linearLayoutGender, new ListViewAdapter(new Category("Male", "Female")));
 
-        LinearLayout linearLayoutLang = (LinearLayout) navigationView.findViewById(R.id.list_language);
-        ListViewAdapter adapterLang =  new ListViewAdapter(new Category("English", "Spanish", "Japanese"));
-        for (int i = 0; i < adapterLang.getCount(); i++) {
-            View item = adapterLang.getView(i, null, null);
-            linearLayoutLang.addView(item);
-        }
+        final LinearLayout linearLayoutLang = (LinearLayout) navigationView.findViewById(R.id.list_language);
+        addAdapter(linearLayoutLang, new ListViewAdapter(new Category("English", "Spanish", "Japanese")));
 
         findViewById(R.id.picture).setOnClickListener(this);
         findViewById(R.id.info).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) findViewById(R.id.texture);
         mFile = new File(getExternalFilesDir(null), "pic.jpg");
+    }
+
+    private void addAdapter(LinearLayout layout, ListViewAdapter adapter) {
+        final LinearLayout linearLayout = layout;
+        for (int i = 0; i < adapter.getCount(); i++) {
+            final View item = adapter.getView(i, null, null);
+            linearLayout.addView(item);
+            item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    for(int i = 0; i < linearLayout.getChildCount(); ++i) {
+                        ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(false);
+                    }
+                    ((CheckableLinearLayout) item).setChecked(true);
+                }
+            });
+        }
     }
 
     /**

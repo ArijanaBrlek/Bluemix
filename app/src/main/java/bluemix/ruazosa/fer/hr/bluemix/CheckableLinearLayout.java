@@ -30,7 +30,6 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
 
     @Override
     public void setChecked(boolean b) {
-        Log.d("click", "setChecked");
         if (b != mChecked) {
             mChecked = b;
             refreshDrawableState();
@@ -42,16 +41,6 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
         setChecked(!mChecked);
     }
 
-//    @Override
-//    public void setOnClickListener(OnClickListener l) {
-//        super.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//            }
-//        });
-//    }
-
     @Override
     public int[] onCreateDrawableState(int extraSpace) {
         final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
@@ -60,6 +49,5 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
         }
         return drawableState;
     }
-
 
 }
