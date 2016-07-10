@@ -34,14 +34,18 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -109,13 +113,19 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ListView listViewGender = (ListView) navigationView.findViewById(R.id.list_gender);
-        listViewGender.setAdapter(new ListViewAdapter(
-                new Category("Male", "Female")));
+        LinearLayout linearLayoutGender = (LinearLayout) navigationView.findViewById(R.id.list_gender);
+        ListViewAdapter adapterGender =  new ListViewAdapter(new Category("Male", "Female"));
+        for (int i = 0; i < adapterGender.getCount(); i++) {
+            View item = adapterGender.getView(i, null, null);
+            linearLayoutGender.addView(item);
+        }
 
-        ListView listViewLanguage = (ListView) navigationView.findViewById(R.id.list_language);
-        listViewLanguage.setAdapter(new ListViewAdapter(
-                new Category("English", "Spanish", "Japanese")));
+        LinearLayout linearLayoutLang = (LinearLayout) navigationView.findViewById(R.id.list_language);
+        ListViewAdapter adapterLang =  new ListViewAdapter(new Category("English", "Spanish", "Japanese"));
+        for (int i = 0; i < adapterLang.getCount(); i++) {
+            View item = adapterLang.getView(i, null, null);
+            linearLayoutLang.addView(item);
+        }
 
         textureView = (TextureView) findViewById(R.id.texture);
         assert textureView != null;
@@ -149,6 +159,7 @@ public class MainActivity extends AppCompatActivity
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         }
     };
+
     private final CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(CameraDevice camera) {
@@ -376,6 +387,7 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
     }
 
+
     private class ListViewAdapter extends BaseAdapter {
 
         private Category category;
@@ -404,10 +416,10 @@ public class MainActivity extends AppCompatActivity
             if (convertView == null) {
                 convertView = getLayoutInflater().inflate(R.layout.list_item, container, false);
             }
-            ((TextView) convertView.findViewById(android.R.id.text1))
-                    .setText(getItem(position));
+            ((TextView) convertView.findViewById(android.R.id.text1)).setText(getItem(position));
             return convertView;
         }
+
     }
 
 
@@ -449,9 +461,9 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.list_gender) {
-            Log.d("MENU: ", "dskljfsdkjfsdk");
-        }
+//        if (id == R.id.list_gender) {
+//            Log.d("MENU: ", "dskljfsdkjfsdk");
+//        }
 
 //        if (id == R.id.nav_camera) {
 //            // Handle the camera action
