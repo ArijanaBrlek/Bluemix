@@ -3,6 +3,7 @@ package bluemix.ruazosa.fer.hr.bluemix;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.ibm.watson.developer_cloud.http.ServiceCallback;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
@@ -142,8 +144,10 @@ public class ClassifyActivity extends AppCompatActivity {
 
                             InputStream in = WaveUtils.reWriteWaveHeader(response);
 
-                            File outputDir =  getCacheDir();
-                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
+                            File outputDir = Environment.getExternalStorageDirectory();
+//                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
+                            File outputFile = new File(Environment.getExternalStorageDirectory(), "hello_world.wav");
+                            outputFile.setReadable(true, false);
                             OutputStream out = new FileOutputStream(outputFile);
 
                             byte[] buffer = new byte[1024];
@@ -157,17 +161,37 @@ public class ClassifyActivity extends AppCompatActivity {
 
                             FileInputStream fis = new FileInputStream(outputFile);
                             MediaPlayer mediaPlayer = new MediaPlayer();
+                            mediaPlayer.reset();
                             mediaPlayer.setDataSource(fis.getFD());
                             mediaPlayer.prepare();
                             mediaPlayer.start();
 
-                        } catch (Exception e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(ClassifyActivity.this, "BOK SVEN", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        } catch (final Exception e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(ClassifyActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            });
+
                             Log.d("ERROR: ", e.getMessage());
                         }
                     }
 
                     @Override
-                    public void onFailure(Exception e) {
+                    public void onFailure(final Exception e) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(ClassifyActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
 
                     }
                 });
