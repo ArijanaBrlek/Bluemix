@@ -140,8 +140,7 @@ public class MainActivity extends AppCompatActivity
         editor.putString(key, s);
         editor.commit();
     }
-
-
+    
     private class ListViewAdapter extends BaseAdapter {
 
         private Category category;
