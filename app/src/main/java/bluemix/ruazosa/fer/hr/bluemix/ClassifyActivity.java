@@ -65,8 +65,13 @@ public class ClassifyActivity extends AppCompatActivity {
     }
 
     private void displayImage(File image) throws FileNotFoundException {
-        Bitmap b = BitmapFactory.decodeStream(new FileInputStream(image));
-        imgCamera.setImageBitmap(b);
+        Bitmap bitmapImage = BitmapFactory.decodeFile(image.getPath());
+        int nh = (int) (bitmapImage.getHeight() * (512.0 / bitmapImage.getWidth()));
+        Bitmap scaled = Bitmap.createScaledBitmap(bitmapImage, 512, nh, true);
+        imgCamera.setImageBitmap(scaled);
+
+//        Bitmap b = BitmapFactory.decodeFile(fileName);
+//        imgCamera.setImageBitmap(b);
     }
 
     private void classifyImage(File image) {

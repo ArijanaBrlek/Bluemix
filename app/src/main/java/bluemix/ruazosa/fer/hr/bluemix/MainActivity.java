@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity
             // Orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-            final File file = new File(Environment.getExternalStorageDirectory()+"/pic.jpg");
+            final File file = new File(Environment.getExternalStorageDirectory(), "pic.jpg");
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -238,6 +238,7 @@ public class MainActivity extends AppCompatActivity
                     try {
                         output = new FileOutputStream(file);
                         output.write(bytes);
+                        output.flush();
                     } finally {
                         if (null != output) {
                             output.close();
@@ -256,7 +257,7 @@ public class MainActivity extends AppCompatActivity
                     i.putExtra("file", file.getPath());
                     startActivity(i);
 
-                    createCameraPreview();
+                    //createCameraPreview();
                 }
             };
             cameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
@@ -370,7 +371,7 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         Log.e(TAG, "onPause");
         //closeCamera();
-        stopBackgroundThread();
+        //stopBackgroundThread();
         super.onPause();
     }
 
