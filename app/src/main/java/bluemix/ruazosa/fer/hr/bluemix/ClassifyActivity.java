@@ -132,7 +132,13 @@ public class ClassifyActivity extends AppCompatActivity {
     }
 
     private void classificationUnknown() {
-        txtClass.setText(R.string.classification_unknown);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                txtClass.setText(R.string.classification_unknown);
+            }
+        });
+
     }
 
     private View.OnClickListener textToSpeech() {
@@ -144,17 +150,18 @@ public class ClassifyActivity extends AppCompatActivity {
                 service.setUsernameAndPassword("2e17aa3c-40ec-4b32-b276-6bce254e4911", "uWyTHqcWVC1P");
 
                 String text = txtClass.getText().toString();
-                service.synthesize(text, Voice.GB_KATE, AudioFormat.WAV).enqueue(new ServiceCallback<InputStream>() {
+                service.synthesize(text, Voice.GB_KATE, AudioFormat.OGG).enqueue(new ServiceCallback<InputStream>() {
 
                     @Override
                     public void onResponse(InputStream response) {
                         try {
 
-                            InputStream in = WaveUtils.reWriteWaveHeader(response);
+//                            InputStream in = WaveUtils.reWriteWaveHeader(response);
+                            InputStream in = response;
 
                             File outputDir = Environment.getExternalStorageDirectory();
 //                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
-                            File outputFile = new File(Environment.getExternalStorageDirectory(), "hello_world.wav");
+                            File outputFile = new File(Environment.getExternalStorageDirectory(), "hello_world.ogg");
                             outputFile.setReadable(true, false);
                             OutputStream out = new FileOutputStream(outputFile);
 
