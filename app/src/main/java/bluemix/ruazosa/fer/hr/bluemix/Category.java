@@ -5,8 +5,6 @@ package bluemix.ruazosa.fer.hr.bluemix;
  */
 public class Category {
 
-    private CategoryItem gender;
-    private CategoryItem language;
     private CategoryItem[] items;
 
     public Category(CategoryItem ... items) {

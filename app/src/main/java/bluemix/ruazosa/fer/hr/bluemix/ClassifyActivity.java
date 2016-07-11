@@ -3,46 +3,41 @@ package bluemix.ruazosa.fer.hr.bluemix;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.ibm.watson.developer_cloud.http.ServiceCallback;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.model.AudioFormat;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.util.WaveUtils;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.VisualRecognition;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.ClassifyImagesOptions;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.ImageClassification;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassification;
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassifier;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ClassifyActivity extends AppCompatActivity {
 
-    private static final String API_DATE = "2016-07-03";
-    private static final String API_KEY = "48a48cd9251f53e09f099795245896557f7488f3";
-    public static final String FILE = "file";
-    public static final String GENDER = "gender";
-    public static final String LANGUAGE = "language";
-
     private ImageView imgCamera;
     private TextView txtClass;
     private String fileName;
     private CategoryItem selectedGender;
     private CategoryItem selectedLanguage;
-
-    private HashMap<String, Voice> hashVoices = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +49,9 @@ public class ClassifyActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
-            fileName = extras.getString(FILE);
-            selectedGender = (CategoryItem) extras.getSerializable(GENDER);
-            selectedLanguage = (CategoryItem) extras.getSerializable(LANGUAGE);
+            fileName = extras.getString(Constants.FILE);
+            selectedGender = (CategoryItem) extras.getSerializable(Constants.GENDER);
+            selectedLanguage = (CategoryItem) extras.getSerializable(Constants.LANGUAGE);
         }
 
         try {
@@ -71,12 +66,6 @@ public class ClassifyActivity extends AppCompatActivity {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(textToSpeech());
 
-        hashVoices.put("male_en", Voice.EN_MICHAEL);
-        hashVoices.put("female_en", Voice.EN_LISA);
-        hashVoices.put("female_es", Voice.ES_LAURA);
-        hashVoices.put("male_es", Voice.ES_ENRIQUE);
-        hashVoices.put("female_ja", Voice.JA_EMI);
-        hashVoices.put("male_ja", Voice.JA_EMI);
     }
 
     private File loadImage() {
@@ -91,8 +80,8 @@ public class ClassifyActivity extends AppCompatActivity {
     }
 
     private void classifyImage(File image) {
-        VisualRecognition service = new VisualRecognition(API_DATE);
-        service.setApiKey(API_KEY);
+        VisualRecognition service = new VisualRecognition(Constants.API_DATE);
+        service.setApiKey(Constants.API_KEY);
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Accept-Language", selectedLanguage.getCode());
@@ -114,9 +103,6 @@ public class ClassifyActivity extends AppCompatActivity {
                             final List<VisualClassifier.VisualClass> classes = classifiers.get(0).getClasses();
 
                             if(classes.size() > 0) {
-                                Log.d("SLIKA:", response.getImages().get(0).getClassifiers().get(0).toString());
-                                Log.d("SLIKA:", response.getImages().get(0).getClassifiers().get(0).getClasses().get(0).getName());
-
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -156,7 +142,6 @@ public class ClassifyActivity extends AppCompatActivity {
                 txtClass.setText(R.string.classification_unknown);
             }
         });
-
     }
 
     private View.OnClickListener textToSpeech() {
@@ -165,22 +150,19 @@ public class ClassifyActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 TextToSpeech service = new TextToSpeech();
-                service.setUsernameAndPassword("2e17aa3c-40ec-4b32-b276-6bce254e4911", "uWyTHqcWVC1P");
+                service.setUsernameAndPassword(Constants.USERNAME, Constants.PASSWORD);
 
                 String text = txtClass.getText().toString();
-                service.synthesize(text, hashVoices.get(
+                service.synthesize(text, Constants.VOICES.get(
                         String.format("%s_%s", selectedGender.getCode(), selectedLanguage.getCode())),
                         AudioFormat.OGG).enqueue(new ServiceCallback<InputStream>() {
                     @Override
                     public void onResponse(InputStream response) {
                         try {
 
-//                            InputStream in = WaveUtils.reWriteWaveHeader(response);
                             InputStream in = response;
 
-                            File outputDir = Environment.getExternalStorageDirectory();
-//                            File outputFile = File.createTempFile("hello_word", ".wav", outputDir);
-                            File outputFile = new File(Environment.getExternalStorageDirectory(), "hello_world.ogg");
+                            File outputFile = new File(Environment.getExternalStorageDirectory(), "sound.ogg");
                             outputFile.setReadable(true, false);
                             OutputStream out = new FileOutputStream(outputFile);
 
@@ -199,13 +181,6 @@ public class ClassifyActivity extends AppCompatActivity {
                             mediaPlayer.setDataSource(fis.getFD());
                             mediaPlayer.prepare();
                             mediaPlayer.start();
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(ClassifyActivity.this, "BOK SVEN", Toast.LENGTH_LONG).show();
-                                }
-                            });
                         } catch (final Exception e) {
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -213,8 +188,6 @@ public class ClassifyActivity extends AppCompatActivity {
                                     Toast.makeText(ClassifyActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             });
-
-                            Log.d("ERROR: ", e.getMessage());
                         }
                     }
 
@@ -226,7 +199,6 @@ public class ClassifyActivity extends AppCompatActivity {
                                 Toast.makeText(ClassifyActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
-
                     }
                 });
 

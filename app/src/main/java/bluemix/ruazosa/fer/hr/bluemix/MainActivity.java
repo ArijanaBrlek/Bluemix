@@ -33,7 +33,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -44,11 +43,8 @@ import android.view.MenuItem;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.Adapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -66,6 +62,8 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    static LinearLayout linearLayoutGender;
+    static LinearLayout linearLayoutLang;
     static ListViewAdapter adapterGender;
     static ListViewAdapter adapterLang;
     static CategoryItem selectedGender;
@@ -87,46 +85,47 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        final LinearLayout linearLayoutGender = (LinearLayout) navigationView.findViewById(R.id.list_gender);
-        adapterGender =  new ListViewAdapter(
-                new Category(
-                    new CategoryItem("Male", "male"),
-                    new CategoryItem("Female", "female")));
+        linearLayoutGender = (LinearLayout) navigationView.findViewById(R.id.list_gender);
+        adapterGender = createAdapter(Constants.GENDER_ITEMS);
         AdapterStrategy strategyGender = new AdapterStrategy() {
             @Override
             public void execute(CategoryItem categoryItem) {
-                writeToSharedPerformances(categoryItem.getCode(), getString(R.string.gender_preferred));
+                writeToSharedPreferences(categoryItem.getCode(), getString(R.string.gender_preferred));
                 selectedGender = categoryItem;
             }
         };
         addAdapter(linearLayoutGender, adapterGender, strategyGender);
 
-        final LinearLayout linearLayoutLang = (LinearLayout) navigationView.findViewById(R.id.list_language);
-        adapterLang = new ListViewAdapter(  new Category(
-                new CategoryItem("English", "en"),
-                new CategoryItem("Spanish", "es"),
-                new CategoryItem("Japanese", "ja")));
+        linearLayoutLang = (LinearLayout) navigationView.findViewById(R.id.list_language);
+        adapterLang = createAdapter(Constants.LANGUAGE_ITEMS);
         AdapterStrategy strategyLanguage= new AdapterStrategy() {
             @Override
             public void execute(CategoryItem categoryItem) {
-                writeToSharedPerformances(categoryItem.getCode(), getString(R.string.lang_preferred));
+                writeToSharedPreferences(categoryItem.getCode(), getString(R.string.lang_preferred));
                 selectedLanguage = categoryItem;
             }
         };
         addAdapter(linearLayoutLang, adapterLang, strategyLanguage);
 
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        String defaultGender = getResources().getString(R.string.gender_default);
-        String preferredGender = sharedPref.getString(getString(R.string.gender_preferred), defaultGender);
-        setAdapterSelection(adapterGender, preferredGender, linearLayoutGender, strategyGender);
+        String gender = setDefaultSelection(R.string.gender_default, R.string.gender_preferred);
+        setAdapterSelection(adapterGender, gender, linearLayoutGender, strategyGender);
 
-        String defaultLang = getResources().getString(R.string.lang_default);
-        String preferredLang = sharedPref.getString(getString(R.string.lang_preferred), defaultLang);
-        setAdapterSelection(adapterLang, preferredLang, linearLayoutLang, strategyLanguage);
+        String language = setDefaultSelection(R.string.lang_default, R.string.lang_preferred);
+        setAdapterSelection(adapterLang, language, linearLayoutLang, strategyLanguage);
 
         findViewById(R.id.picture).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) findViewById(R.id.texture);
         mFile = new File(getExternalFilesDir(null), "pic.jpg");
+    }
+
+    private String setDefaultSelection(int defaultKey, int preferredKey) {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        String defaultGender = getResources().getString(defaultKey);
+        return sharedPref.getString(getString(preferredKey), defaultGender);
+    }
+
+    private ListViewAdapter createAdapter(Category items) {
+        return new ListViewAdapter(this, items);
     }
 
     private void setAdapterSelection(ListViewAdapter adapter, String preferred, LinearLayout linearLayout, AdapterStrategy strategy) {
@@ -146,70 +145,27 @@ public class MainActivity extends AppCompatActivity
             item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    for(int i = 0; i < linearLayout.getChildCount(); ++i) {
-
-                        if (view.equals(linearLayout.getChildAt(i))) {
-//                            ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(true);
-                            ((CheckableLinearLayout) item).setChecked(true);
-                            strategy.execute(adapter.getCategoryItem(i));
-                        } else {
-                            ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(false);
-                        }
+                for(int i = 0; i < linearLayout.getChildCount(); ++i) {
+                    if (view.equals(linearLayout.getChildAt(i))) {
+                        ((CheckableLinearLayout) item).setChecked(true);
+                        strategy.execute(adapter.getCategoryItem(i));
+                    } else {
+                        ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(false);
                     }
+                }
                 }
             });
         }
     }
 
-    private interface AdapterStrategy {
-        void execute(CategoryItem categoryItem);
-    }
-
-
-    private void writeToSharedPerformances(String s, String key) {
+    private void writeToSharedPreferences(String s, String key) {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(key, s);
         editor.commit();
     }
     
-    private class ListViewAdapter extends BaseAdapter {
 
-        private Category category;
-
-        public ListViewAdapter(Category category) {
-            this.category = category;
-        }
-
-        @Override
-        public int getCount() {
-            return category.getItems().length;
-        }
-
-        public CategoryItem getCategoryItem(int position) {
-            return category.getItems()[position];
-        }
-
-        @Override
-        public String getItem(int position) {
-            return category.getItems()[position].getValue();
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return category.getItems()[position].hashCode();
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup container) {
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.list_item, container, false);
-            }
-            ((TextView) convertView.findViewById(android.R.id.text1)).setText(getItem(position));
-            return convertView;
-        }
-
-    }
 
     /**
      * Conversion from screen rotation to JPEG orientation.
@@ -938,9 +894,9 @@ public class MainActivity extends AppCompatActivity
                     unlockFocus();
 
                     Intent i = new Intent(MainActivity.this, ClassifyActivity.class);
-                    i.putExtra(ClassifyActivity.FILE, mFile.getPath());
-                    i.putExtra(ClassifyActivity.GENDER, selectedGender);
-                    i.putExtra(ClassifyActivity.LANGUAGE, selectedLanguage);
+                    i.putExtra(Constants.FILE, mFile.getPath());
+                    i.putExtra(Constants.GENDER, selectedGender);
+                    i.putExtra(Constants.LANGUAGE, selectedLanguage);
                     startActivity(i);
                 }
             };
