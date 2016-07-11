@@ -43,15 +43,6 @@ public class ClassifyActivity extends AppCompatActivity {
     private CategoryItem selectedLanguage;
 
     private HashMap<String, Voice> hashVoices = new HashMap<>();
-    {
-        hashVoices.put("male_en", Voice.EN_MICHAEL);
-        hashVoices.put("female_en", Voice.EN_LISA);
-        hashVoices.put("female_es", Voice.ES_LAURA);
-        hashVoices.put("male_es", Voice.ES_ENRIQUE);
-        hashVoices.put("female_ja", Voice.JA_EMI);
-        hashVoices.put("male_ja", Voice.JA_EMI);
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +70,13 @@ public class ClassifyActivity extends AppCompatActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(textToSpeech());
+
+        hashVoices.put("male_en", Voice.EN_MICHAEL);
+        hashVoices.put("female_en", Voice.EN_LISA);
+        hashVoices.put("female_es", Voice.ES_LAURA);
+        hashVoices.put("male_es", Voice.ES_ENRIQUE);
+        hashVoices.put("female_ja", Voice.JA_EMI);
+        hashVoices.put("male_ja", Voice.JA_EMI);
     }
 
     private File loadImage() {
@@ -171,7 +169,7 @@ public class ClassifyActivity extends AppCompatActivity {
 
                 String text = txtClass.getText().toString();
                 service.synthesize(text, hashVoices.get(
-                        String.format("{0}_{1}", selectedGender.getCode(), selectedLanguage.getCode())),
+                        String.format("%s_%s", selectedGender.getCode(), selectedLanguage.getCode())),
                         AudioFormat.OGG).enqueue(new ServiceCallback<InputStream>() {
                     @Override
                     public void onResponse(InputStream response) {
