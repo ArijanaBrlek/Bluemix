@@ -10,7 +10,7 @@
     <string name="classification_unknown">classification unknown</string>
     <string name="gender_default">male</string>
     <string name="gender_preferred">male</string>
-    <string name="lang_default">english</string>
-    <string name="lang_preferred">english</string>
+    <string name="lang_default">en</string>
+    <string name="lang_preferred">en</string>
 
 </resources>
