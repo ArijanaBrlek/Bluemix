@@ -24,6 +24,7 @@ import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassifi
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassifier;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
 
 public class ClassifyActivity extends AppCompatActivity {
@@ -34,6 +35,17 @@ public class ClassifyActivity extends AppCompatActivity {
     private ImageView imgCamera;
     private TextView txtClass;
     private String fileName;
+
+    private HashMap<String, Voice> hash = new HashMap<>();
+    {
+        hash.put("male_en", Voice.EN_MICHAEL);
+        hash.put("female_en", Voice.EN_LISA);
+        hash.put("female_es", Voice.ES_LAURA);
+        hash.put("male_es", Voice.ES_ENRIQUE);
+        hash.put("female_ja", Voice.JA_EMI);
+        hash.put("male_ja", Voice.JA_EMI);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
