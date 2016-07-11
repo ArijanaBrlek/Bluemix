@@ -42,14 +42,14 @@ public class ClassifyActivity extends AppCompatActivity {
     private CategoryItem selectedGender;
     private CategoryItem selectedLanguage;
 
-    private HashMap<String, Voice> hash = new HashMap<>();
+    private HashMap<String, Voice> hashVoices = new HashMap<>();
     {
-        hash.put("male_en", Voice.EN_MICHAEL);
-        hash.put("female_en", Voice.EN_LISA);
-        hash.put("female_es", Voice.ES_LAURA);
-        hash.put("male_es", Voice.ES_ENRIQUE);
-        hash.put("female_ja", Voice.JA_EMI);
-        hash.put("male_ja", Voice.JA_EMI);
+        hashVoices.put("male_en", Voice.EN_MICHAEL);
+        hashVoices.put("female_en", Voice.EN_LISA);
+        hashVoices.put("female_es", Voice.ES_LAURA);
+        hashVoices.put("male_es", Voice.ES_ENRIQUE);
+        hashVoices.put("female_ja", Voice.JA_EMI);
+        hashVoices.put("male_ja", Voice.JA_EMI);
     }
 
 
@@ -82,7 +82,6 @@ public class ClassifyActivity extends AppCompatActivity {
     }
 
     private File loadImage() {
-//        return new File("/storage/emulated/0/Download", "gx6romp.jpg");
         return new File(fileName);
     }
 
@@ -91,9 +90,6 @@ public class ClassifyActivity extends AppCompatActivity {
         int nh = (int) (bitmapImage.getHeight() * (512.0 / bitmapImage.getWidth()));
         Bitmap scaled = Bitmap.createScaledBitmap(bitmapImage, 512, nh, true);
         imgCamera.setImageBitmap(scaled);
-
-//        Bitmap b = BitmapFactory.decodeFile(fileName);
-//        imgCamera.setImageBitmap(b);
     }
 
     private void classifyImage(File image) {
@@ -174,8 +170,9 @@ public class ClassifyActivity extends AppCompatActivity {
                 service.setUsernameAndPassword("2e17aa3c-40ec-4b32-b276-6bce254e4911", "uWyTHqcWVC1P");
 
                 String text = txtClass.getText().toString();
-                service.synthesize(text, Voice.GB_KATE, AudioFormat.OGG).enqueue(new ServiceCallback<InputStream>() {
-
+                service.synthesize(text, hashVoices.get(
+                        String.format("{0}_{1}", selectedGender.getCode(), selectedLanguage.getCode())),
+                        AudioFormat.OGG).enqueue(new ServiceCallback<InputStream>() {
                     @Override
                     public void onResponse(InputStream response) {
                         try {
