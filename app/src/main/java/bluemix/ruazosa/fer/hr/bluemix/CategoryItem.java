@@ -1,9 +1,11 @@
 package bluemix.ruazosa.fer.hr.bluemix;
 
+import java.io.Serializable;
+
 /**
  * Created by arijana on 7/11/16.
  */
-public class CategoryItem {
+public class CategoryItem implements Serializable {
 
     private String value;
     private String code;

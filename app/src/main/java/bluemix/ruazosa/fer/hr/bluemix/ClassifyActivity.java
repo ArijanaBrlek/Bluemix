@@ -24,16 +24,23 @@ import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassifi
 import com.ibm.watson.developer_cloud.visual_recognition.v3.model.VisualClassifier;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClassifyActivity extends AppCompatActivity {
 
     private static final String API_DATE = "2016-07-03";
     private static final String API_KEY = "48a48cd9251f53e09f099795245896557f7488f3";
+    public static final String FILE = "file";
+    public static final String GENDER = "gender";
+    public static final String LANGUAGE = "language";
 
     private ImageView imgCamera;
     private TextView txtClass;
     private String fileName;
+    private CategoryItem selectedGender;
+    private CategoryItem selectedLanguage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +52,9 @@ public class ClassifyActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
-            fileName = extras.getString("file");
+            fileName = extras.getString(FILE);
+            selectedGender = (CategoryItem) extras.getSerializable(GENDER);
+            selectedLanguage = (CategoryItem) extras.getSerializable(LANGUAGE);
         }
 
         try {
@@ -79,6 +88,10 @@ public class ClassifyActivity extends AppCompatActivity {
     private void classifyImage(File image) {
         VisualRecognition service = new VisualRecognition(API_DATE);
         service.setApiKey(API_KEY);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Accept-Language", selectedLanguage.getCode());
+        service.setDefaultHeaders(headers);
 
         final ClassifyImagesOptions classifyImagesOptions = new ClassifyImagesOptions.Builder()
                 .images(image)
