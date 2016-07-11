@@ -937,7 +937,9 @@ public class MainActivity extends AppCompatActivity
                     unlockFocus();
 
                     Intent i = new Intent(MainActivity.this, ClassifyActivity.class);
-                    i.putExtra("file", mFile.getPath());
+                    i.putExtra(ClassifyActivity.FILE, mFile.getPath());
+                    i.putExtra(ClassifyActivity.GENDER, selectedGender);
+                    i.putExtra(ClassifyActivity.LANGUAGE, selectedLanguage);
                     startActivity(i);
                 }
             };
