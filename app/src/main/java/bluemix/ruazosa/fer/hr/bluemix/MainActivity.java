@@ -118,21 +118,22 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String defaultGender = getResources().getString(R.string.gender_default);
         String preferredGender = sharedPref.getString(getString(R.string.gender_preferred), defaultGender);
-        setAdapterSelection(adapterGender, preferredGender, linearLayoutGender);
+        setAdapterSelection(adapterGender, preferredGender, linearLayoutGender, strategyGender);
 
         String defaultLang = getResources().getString(R.string.lang_default);
         String preferredLang = sharedPref.getString(getString(R.string.lang_preferred), defaultLang);
-        setAdapterSelection(adapterLang, preferredLang, linearLayoutLang);
+        setAdapterSelection(adapterLang, preferredLang, linearLayoutLang, strategyLanguage);
 
         findViewById(R.id.picture).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) findViewById(R.id.texture);
         mFile = new File(getExternalFilesDir(null), "pic.jpg");
     }
 
-    private void setAdapterSelection(ListViewAdapter adapter, String preferred, LinearLayout linearLayout) {
+    private void setAdapterSelection(ListViewAdapter adapter, String preferred, LinearLayout linearLayout, AdapterStrategy strategy) {
         for (int i = 0; i < adapter.getCount(); i++) {
             if (adapter.getCategoryItem(i).getCode().toLowerCase().equals(preferred)) {
                 ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(true);
+                strategy.execute(adapter.getCategoryItem(i));
             }
         }
     }
