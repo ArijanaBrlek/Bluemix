@@ -119,12 +119,13 @@ public class ClassifyActivity extends AppCompatActivity {
                         classificationUnknown();
                     }
                 } catch(final Exception e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(ClassifyActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(ClassifyActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+                    classificationUnknown();
                 }
             }
 
