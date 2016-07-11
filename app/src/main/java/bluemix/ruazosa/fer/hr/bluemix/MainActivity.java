@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity
 
     static ListViewAdapter adapterGender;
     static ListViewAdapter adapterLang;
+    static CategoryItem selectedGender;
+    static CategoryItem selectedLanguage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,12 +88,32 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         final LinearLayout linearLayoutGender = (LinearLayout) navigationView.findViewById(R.id.list_gender);
-        adapterGender =  new ListViewAdapter(new Category("Male", "Female"));
-        addAdapter(linearLayoutGender, adapterGender, getString(R.string.gender_preferred));
+        adapterGender =  new ListViewAdapter(
+                new Category(
+                    new CategoryItem("Male", "male"),
+                    new CategoryItem("Female", "female")));
+        AdapterStrategy strategyGender = new AdapterStrategy() {
+            @Override
+            public void execute(CategoryItem categoryItem) {
+                writeToSharedPerformances(categoryItem.getCode(), getString(R.string.gender_preferred));
+                selectedGender = categoryItem;
+            }
+        };
+        addAdapter(linearLayoutGender, adapterGender, strategyGender);
 
         final LinearLayout linearLayoutLang = (LinearLayout) navigationView.findViewById(R.id.list_language);
-        adapterLang = new ListViewAdapter(new Category("English", "Spanish", "Japanese"));
-        addAdapter(linearLayoutLang, adapterLang, getString(R.string.lang_preferred));
+        adapterLang = new ListViewAdapter(  new Category(
+                new CategoryItem("English", "en"),
+                new CategoryItem("Spanish", "es"),
+                new CategoryItem("Japanese", "ja")));
+        AdapterStrategy strategyLanguage= new AdapterStrategy() {
+            @Override
+            public void execute(CategoryItem categoryItem) {
+                writeToSharedPerformances(categoryItem.getCode(), getString(R.string.lang_preferred));
+                selectedLanguage = categoryItem;
+            }
+        };
+        addAdapter(linearLayoutLang, adapterLang, strategyLanguage);
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String defaultGender = getResources().getString(R.string.gender_default);
@@ -109,13 +131,13 @@ public class MainActivity extends AppCompatActivity
 
     private void setAdapterSelection(ListViewAdapter adapter, String preferred, LinearLayout linearLayout) {
         for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toLowerCase().equals(preferred)) {
+            if (adapter.getCategoryItem(i).getCode().toLowerCase().equals(preferred)) {
                 ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(true);
             }
         }
     }
 
-    private void addAdapter(final LinearLayout layout, final ListViewAdapter adapter, final String preferredKey) {
+    private void addAdapter(LinearLayout layout, final ListViewAdapter adapter, final AdapterStrategy strategy) {
         final LinearLayout linearLayout = layout;
         for (int i = 0; i < adapter.getCount(); i++) {
             final View item = adapter.getView(i, null, null);
@@ -124,14 +146,24 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view) {
                     for(int i = 0; i < linearLayout.getChildCount(); ++i) {
-                        ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(false);
+
+                        if (view.equals(linearLayout.getChildAt(i))) {
+//                            ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(true);
+                            ((CheckableLinearLayout) item).setChecked(true);
+                            strategy.execute(adapter.getCategoryItem(i));
+                        } else {
+                            ((CheckableLinearLayout) linearLayout.getChildAt(i)).setChecked(false);
+                        }
                     }
-                    ((CheckableLinearLayout) item).setChecked(true);
-                    writeToSharedPerformances(((TextView)((CheckableLinearLayout) item).findViewById(android.R.id.text1)).getText().toString().toLowerCase(), preferredKey);
                 }
             });
         }
     }
+
+    private interface AdapterStrategy {
+        void execute(CategoryItem categoryItem);
+    }
+
 
     private void writeToSharedPerformances(String s, String key) {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -153,9 +185,13 @@ public class MainActivity extends AppCompatActivity
             return category.getItems().length;
         }
 
+        public CategoryItem getCategoryItem(int position) {
+            return category.getItems()[position];
+        }
+
         @Override
         public String getItem(int position) {
-            return category.getItems()[position];
+            return category.getItems()[position].getValue();
         }
 
         @Override

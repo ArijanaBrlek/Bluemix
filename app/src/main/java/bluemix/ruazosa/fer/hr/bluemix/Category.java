@@ -5,14 +5,15 @@ package bluemix.ruazosa.fer.hr.bluemix;
  */
 public class Category {
 
-    private String[] items;
+    private CategoryItem gender;
+    private CategoryItem language;
+    private CategoryItem[] items;
 
-    public Category(String ... items) {
+    public Category(CategoryItem ... items) {
         this.items = items;
     }
 
-    public String[] getItems() {
+    public CategoryItem[] getItems() {
         return items;
     }
-
 }
